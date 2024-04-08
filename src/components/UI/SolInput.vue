@@ -1,7 +1,5 @@
 <template>
-    <button class="sol__input" :type="type">
-        <slot></slot>
-    </button>
+    <input class="sol__input" :type="type">
 </template>
 
 <script>

@@ -1,17 +1,15 @@
 <template>
-    <button class="sol__btn">
+    <select>
         <slot></slot>
-    </button>
+    </select>
 </template>
 
 <script>
 export default {
-    name: 'sol-button'
+    name: 'sol-select'
 }
 </script>
 
 <style scoped>
-.sol_button {
 
-}
 </style>
