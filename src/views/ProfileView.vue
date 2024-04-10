@@ -7,7 +7,7 @@
             <label>Время с начала свободной продажи: <span>0 min</span></label>
             <label>Роль: <span>{{ role }}</span></label>
             <label>Адрес: <span>{{ address }}</span></label>
-            <label>ETH: <span>{{ ethBalance }}</span></label>
+            <label>ETH: <span>{{ etherBalance }}</span></label>
             <label>CMON: <span>{{ tokenBalance }}</span></label>
         </div>
         <div>
@@ -17,6 +17,7 @@
         <InvestorsRequestList v-if="role === 'admin' || role == 'privateProvider'">
         </InvestorsRequestList>
         <GetUserData v-if="role !== 'user'"></GetUserData>
+        <sol-button @click="getBalance">d</sol-button>
     </div>
 </template>
 
@@ -24,6 +25,10 @@
 import InvestorsRequestList from '@/components/InvestorsRequestsList.vue';
 import GetUserData from '@/components/GetUserData.vue';
 import {mapState} from 'vuex';
+import {web3} from "@/services/services";
+import store  from '@/store/index';
+import { getUserData } from '@/hooks/getUserData';
+
 export default {
     components: {
         InvestorsRequestList,
@@ -31,8 +36,15 @@ export default {
     },
     data() {
         return {
-            ethBalance: '100',
-            tokenBalance: '100000'
+            
+        }
+    },
+    methods: {
+        getBalance() {
+            web3.eth.getBalance('0x5D3003a172Fb54fCC8Fa63b77F29693640114FcA')
+            .then((balance) => {
+                console.log(web3.utils.fromWei(balance, "ether"));
+            });
         }
     },
     computed: {
@@ -41,6 +53,16 @@ export default {
             role: state => state.auth.role,
             address: state => state.auth.address
         })
+    },
+
+    setup() {
+        const {etherBalance, tokenBalance, role} = getUserData(store.state.auth.address);
+
+        return {
+            etherBalance,
+            tokenBalance,
+            role
+        }
     }
 }
 </script>
