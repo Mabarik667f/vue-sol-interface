@@ -1,25 +1,47 @@
 <template>
     <div>
+        <h2>Профиль</h2>
         <div class="profile-info">
             <label>Время жизни системы: <span>5 min</span></label>
             <label>Общая длительность Private фазы: <span>1 min</span></label>
             <label>Время с начала свободной продажи: <span>0 min</span></label>
-            <label>Роль: <span>Владелец</span></label>
-            <label>Адрес: <span>0x5B38Da6a701c568545dCfcB03FcB875f56beddC4</span></label>
-            <label>ETH: <span>100</span></label>
-            <label>CMON: <span> 100000</span></label>
+            <label>Роль: <span>{{ role }}</span></label>
+            <label>Адрес: <span>{{ address }}</span></label>
+            <label>ETH: <span>{{ ethBalance }}</span></label>
+            <label>CMON: <span>{{ tokenBalance }}</span></label>
         </div>
-        <h2>Функции</h2>
         <div>
             <sol-button @click="$router.push('/buyTokens')">Купить токены</sol-button>
             <sol-button @click="$router.push('/investorRequest')">Стать Инвестором</sol-button>
         </div>
+        <InvestorsRequestList v-if="role === 'admin' || role == 'privateProvider'">
+        </InvestorsRequestList>
+        <GetUserData v-if="role !== 'user'"></GetUserData>
     </div>
 </template>
 
 <script>
+import InvestorsRequestList from '@/components/InvestorsRequestsList.vue';
+import GetUserData from '@/components/GetUserData.vue';
+import {mapState} from 'vuex';
 export default {
-
+    components: {
+        InvestorsRequestList,
+        GetUserData
+    },
+    data() {
+        return {
+            ethBalance: '100',
+            tokenBalance: '100000'
+        }
+    },
+    computed: {
+        ...mapState({
+            isAuth: state => state.auth.isAuth,
+            role: state => state.auth.role,
+            address: state => state.auth.address
+        })
+    }
 }
 </script>
 

@@ -28,7 +28,11 @@ nav {
 }
 
 .nav__item {
+  text-decoration: none;
   margin: 0px 10px;
+  color: inherit;
+  font-size: inherit;
+  cursor: pointer;
 }
 
 </style>

@@ -1,8 +1,17 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import store from "@/store/index";
 import HomeView from '../views/HomeView.vue'
 import ProfileView from '@/views/ProfileView.vue'
 import TokensBuyView from '@/views/TokensBuyView.vue'
 import InvestorRequestView from '@/views/InvestorRequestView.vue'
+
+const authGuard = (to, from, next) => {
+  if(!store.state.auth.isAuth) {
+    next('/');
+  } else {
+    next();
+  }
+}
 
 const routes = [
   {
@@ -13,17 +22,20 @@ const routes = [
   {
     path: '/profile',
     name: 'profile',
-    component: ProfileView
+    component: ProfileView,
+    beforeEnter: authGuard
   },
   {
     path: '/buyTokens',
     name: 'buyTokens',
-    component: TokensBuyView
+    component: TokensBuyView,
+    beforeEnter: authGuard
   },
   {
     path: '/investorRequest',
     name: 'investorRequest',
-    component: InvestorRequestView
+    component: InvestorRequestView,
+    beforeEnter: authGuard
   }
 ]
 
