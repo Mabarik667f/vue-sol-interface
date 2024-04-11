@@ -19,11 +19,19 @@
             >Список заявок
             </sol-button>
         </div>
-        <UserGift></UserGift>
-        <OwnerGift v-if="role === 'admin'"></OwnerGift>
-
-        <PartnerGift v-if="role === 'publicProvider'"></PartnerGift>
-        <GetUserData v-if="role !== 'user'"></GetUserData>
+        <UserGift
+        @updateTokenBalance="updateTokenBalance"
+        ></UserGift>
+        <OwnerGift 
+        @updateTokenBalance="updateTokenBalance"
+        v-if="role === 'admin'">
+        </OwnerGift>
+        <PartnerGift v-if="role === 'publicProvider'"
+        @updateTokenBalance="updateTokenBalance"
+        @updateEthBalance="updateEthBalance"
+        ></PartnerGift>
+        <GetUserData 
+        v-if="role !== 'user'"></GetUserData>
     </div>
 </template>
 
@@ -52,6 +60,12 @@ export default {
     methods: {
         addOneMinuteHook() {
             addOneMinute(store.state.auth.address);
+        },
+        updateTokenBalance(newBalance) {
+            this.tokenBalance = newBalance;
+        },
+        updateEthBalance(newBalance) {
+            this.etherBalance = newBalance;
         }
     },
     computed: {
