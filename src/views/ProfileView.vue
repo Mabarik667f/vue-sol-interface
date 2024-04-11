@@ -5,6 +5,7 @@
             <label>Время жизни системы: <span>5 min</span></label>
             <label>Общая длительность Private фазы: <span>1 min</span></label>
             <label>Время с начала свободной продажи: <span>0 min</span></label>
+            <sol-button @click="addOneMinuteHook">+1 минута</sol-button>
             <label>Роль: <span>{{ role }}</span></label>
             <label>Адрес: <span>{{ address }}</span></label>
             <label>ETH: <span>{{ etherBalance }}</span></label>
@@ -13,26 +14,35 @@
         <div>
             <sol-button @click="$router.push('/buyTokens')">Купить токены</sol-button>
             <sol-button @click="$router.push('/investorRequest')">Стать Инвестором</sol-button>
+            <sol-button v-if="role === 'admin' || role === 'privateProvider'"
+            @click="$router.push('/requestsList')"
+            >Список заявок
+            </sol-button>
         </div>
-        <InvestorsRequestList v-if="role === 'admin' || role == 'privateProvider'">
-        </InvestorsRequestList>
+        <UserGift></UserGift>
+        <OwnerGift v-if="role === 'admin'"></OwnerGift>
+
+        <PartnerGift v-if="role === 'publicProvider'"></PartnerGift>
         <GetUserData v-if="role !== 'user'"></GetUserData>
-        <sol-button @click="getBalance">d</sol-button>
     </div>
 </template>
 
 <script>
-import InvestorsRequestList from '@/components/InvestorsRequestsList.vue';
 import GetUserData from '@/components/GetUserData.vue';
+import UserGift from '@/components/UserGift.vue';
+import PartnerGift from '@/components/PartnerGift.vue';
+import OwnerGift from '@/components/OwnerGift.vue';
+import {addOneMinute} from "@/hooks/addOneMinute";
 import {mapState} from 'vuex';
-import {web3} from "@/services/services";
 import store  from '@/store/index';
 import { getUserData } from '@/hooks/getUserData';
 
 export default {
     components: {
-        InvestorsRequestList,
-        GetUserData
+        GetUserData,
+        UserGift,
+        PartnerGift,
+        OwnerGift
     },
     data() {
         return {
@@ -40,11 +50,8 @@ export default {
         }
     },
     methods: {
-        getBalance() {
-            web3.eth.getBalance('0x5D3003a172Fb54fCC8Fa63b77F29693640114FcA')
-            .then((balance) => {
-                console.log(web3.utils.fromWei(balance, "ether"));
-            });
+        addOneMinuteHook() {
+            addOneMinute(store.state.auth.address);
         }
     },
     computed: {
@@ -56,12 +63,11 @@ export default {
     },
 
     setup() {
-        const {etherBalance, tokenBalance, role} = getUserData(store.state.auth.address);
+        const {etherBalance, tokenBalance} = getUserData(store.state.auth.address);
 
         return {
             etherBalance,
             tokenBalance,
-            role
         }
     }
 }

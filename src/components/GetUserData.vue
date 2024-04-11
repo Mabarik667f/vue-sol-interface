@@ -1,6 +1,6 @@
 <template>
     <h4>Получить данные о пользователе</h4>
-    <form method="post" @submit.prevent="getUserData">
+    <form method="post" @submit.prevent="getUserBalanceHandler">
         <label>Пользователь: 
             <sol-input 
             v-bind:value="address"
@@ -13,6 +13,9 @@
 </template>
 
 <script>
+import { getUserBalance } from '@/hooks/getUserBalance';
+import store from "@/store/index";
+
 export default {
     data() {
         return {
@@ -20,10 +23,13 @@ export default {
         }
     },
     methods: {
-        getUserData() {
-
+        getUserBalanceHandler() {
+            getUserBalance(store.state.auth.role,
+            store.state.auth.address, this.address
+            )
         }
-    }
+    },
+
 }
 </script>
 

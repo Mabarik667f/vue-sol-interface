@@ -1,7 +1,7 @@
 <template>
     <sol-form @submit.prevent="" :buttonText="'Подарить'">
         <template v-slot:header>
-            <h4>Токены для рекламодателя</h4>
+            <h4>Подарить токены</h4>
         </template>
         <template v-slot:fields>
             <label>Адрес: <sol-input></sol-input></label>
