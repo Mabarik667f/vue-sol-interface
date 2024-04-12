@@ -1,6 +1,5 @@
 <template>
-    <div>{{ like }}</div>
-    <sol-form :buttonText="'Купить'" @submit.once="buyTokens">
+    <sol-form :buttonText="'Купить'" @submit.prevent="buyTokensHook">
         <template v-slot:header>
             <h1>Покупка токенов</h1>
             <p>Приватные токены могу покупать только пользователи, находящиеся в списке инвесторов.
@@ -14,6 +13,7 @@
                   type="number"
                   v-bind:value="amount"
                   @input="amount = $event.target.value"></sol-input>
+                  {{ this.errors.amount }}
             </label>
             <label>
                 Тип Токена:
@@ -21,12 +21,15 @@
                  v-model="typeToken"
                  :options="typesTokens">
                  </sol-select>
+                 {{ this.errors.typeToken }}
             </label>
         </template>
     </sol-form>
 </template>
 
 <script>
+import { mapState } from 'vuex';
+import buyTokens from '@/hooks/buyTokens';
 export default {
     data() {
         return {
@@ -35,12 +38,33 @@ export default {
             typesTokens: [
                 {value: 1, name: 'Private'},
                 {value: 2, name: 'Public'}
-            ]
+            ],
+            errors: {}
         }
     },
+    computed: {
+        ...mapState({
+            address: state => state.auth.address
+        })
+    },
     methods: {
-        buyTokens() {
+
+        async buyTokensHook() {
+            if(this.formValidator()) {
+                await buyTokens(this.typeToken, this.amount, this.address);
+                this.$router.push('/profile');
+            }
+        },
+        formValidator() {
+            if(!this.typeToken) {
+                this.errors.typeToken = 'select type Token!';
+            }
             
+            if (!this.amount) {
+                this.errors.amount = 'write amount !';
+            }
+
+            return Object.keys(this.errors).length > 0 ? false : true;
         }
     }
 }

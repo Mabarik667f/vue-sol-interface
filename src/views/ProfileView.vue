@@ -10,6 +10,7 @@
             <label>Адрес: <span>{{ address }}</span></label>
             <label>ETH: <span>{{ etherBalance }}</span></label>
             <label>CMON: <span>{{ tokenBalance }}</span></label>
+            <label>Цена Public Токена: <span>{{ publicTokenPrice }}</span></label>
         </div>
         <div>
             <sol-button @click="$router.push('/buyTokens')">Купить токены</sol-button>
@@ -26,12 +27,17 @@
         @updateTokenBalance="updateTokenBalance"
         v-if="role === 'admin'">
         </OwnerGift>
-        <PartnerGift v-if="role === 'publicProvider'"
-        @updateTokenBalance="updateTokenBalance"
-        @updateEthBalance="updateEthBalance"
-        ></PartnerGift>
+        <div v-if="role === 'publicProvider'">
+            <ChangeTokenPrice
+            @updateTokenPrice="updateTokenPrice"></ChangeTokenPrice>
+            <PartnerGift
+            @updateTokenBalance="updateTokenBalance"
+            @updateEthBalance="updateEthBalance"
+            ></PartnerGift>
+        </div>
         <GetUserData 
         v-if="role !== 'user'"></GetUserData>
+
     </div>
 </template>
 
@@ -40,32 +46,37 @@ import GetUserData from '@/components/GetUserData.vue';
 import UserGift from '@/components/UserGift.vue';
 import PartnerGift from '@/components/PartnerGift.vue';
 import OwnerGift from '@/components/OwnerGift.vue';
+import ChangeTokenPrice from "@/components/ChangeTokenPrice.vue";
+
+import getTokenPrice from '@/hooks/getTokenPrice';
+import store from "@/store/index";
+
 import {addOneMinute} from "@/hooks/addOneMinute";
 import {mapState} from 'vuex';
-import store  from '@/store/index';
-import { getUserData } from '@/hooks/getUserData';
+import {getUserData} from '@/hooks/getUserData';
+import {web3} from "@/services/services"
+
 
 export default {
     components: {
         GetUserData,
         UserGift,
         PartnerGift,
-        OwnerGift
-    },
-    data() {
-        return {
-            
-        }
+        OwnerGift,
+        ChangeTokenPrice
     },
     methods: {
         addOneMinuteHook() {
-            addOneMinute(store.state.auth.address);
+            addOneMinute(this.address);
         },
         updateTokenBalance(newBalance) {
             this.tokenBalance = newBalance;
         },
         updateEthBalance(newBalance) {
             this.etherBalance = newBalance;
+        },
+        updateTokenPrice(newPrice) {
+            this.publicTokenPrice = web3.utils.fromWei(newPrice, "ether");
         }
     },
     computed: {
@@ -78,10 +89,12 @@ export default {
 
     setup() {
         const {etherBalance, tokenBalance} = getUserData(store.state.auth.address);
+        const {publicTokenPrice} = getTokenPrice(store.state.auth.address);
 
         return {
             etherBalance,
             tokenBalance,
+            publicTokenPrice
         }
     }
 }

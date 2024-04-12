@@ -5,7 +5,7 @@ export const inverstorRequest = async function(name, address) {
         await contract.methods.inverstorRequest(name).send({'from': address});
         return 'success';
     } catch(error) {
-        console.log('Фаза подачи закончилась');
+        console.log('Фаза подачи закончилась или Ваш запрос в обработке');
         throw error; 
     }
 };
