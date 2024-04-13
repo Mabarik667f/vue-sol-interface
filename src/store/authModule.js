@@ -1,4 +1,4 @@
-import {contract} from '@/services/services';
+import {contract, web3} from '@/services/services';
 
 export const authModule = {
     state: () => ({
@@ -23,10 +23,16 @@ export const authModule = {
         async login({commit}) { 
             try {
             const addresses = await window.ethereum.request({method: 'eth_requestAccounts'});
-
+            
+            await Promise.all(addresses.map(async account => {
+                await web3.eth.personal.unlockAccount(account, "", 0);
+            }))
             contract.methods.getYourSelfData().call({'from': addresses[0]})
             .then((object) => {
                 let roleValue = object.role;
+                if(roleValue === '') {
+                    roleValue = 'user';
+                }
                 commit('setAuth', {isAuth: true, role: roleValue, address: addresses[0]});
                 localStorage.setItem(addresses[0], JSON.stringify(roleValue));
                 });

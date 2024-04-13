@@ -2,9 +2,9 @@
     <div>
         <h2>Профиль</h2>
         <div class="profile-info">
-            <label>Время жизни системы: <span>5 min</span></label>
-            <label>Общая длительность Private фазы: <span>1 min</span></label>
-            <label>Время с начала свободной продажи: <span>0 min</span></label>
+            <label>Время жизни системы: <span>{{ systemLifeMinutes }} min</span></label>
+            <label>Общая длительность Private фазы: <span>{{ privateStageTime }} min</span></label>
+            <label>Время с начала свободной продажи: <span>{{ publicStageTime }} min</span></label>
             <sol-button @click="addOneMinuteHook">+1 минута</sol-button>
             <label>Роль: <span>{{ role }}</span></label>
             <label>Адрес: <span>{{ address }}</span></label>
@@ -49,6 +49,7 @@ import OwnerGift from '@/components/OwnerGift.vue';
 import ChangeTokenPrice from "@/components/ChangeTokenPrice.vue";
 
 import getTokenPrice from '@/hooks/getTokenPrice';
+import getSystemLifeTime from "@/hooks/getSystemLifeTime";
 import store from "@/store/index";
 
 import {addOneMinute} from "@/hooks/addOneMinute";
@@ -65,9 +66,11 @@ export default {
         OwnerGift,
         ChangeTokenPrice
     },
+
     methods: {
         addOneMinuteHook() {
             addOneMinute(this.address);
+            this.updateTime();
         },
         updateTokenBalance(newBalance) {
             this.tokenBalance = newBalance;
@@ -77,6 +80,15 @@ export default {
         },
         updateTokenPrice(newPrice) {
             this.publicTokenPrice = web3.utils.fromWei(newPrice, "ether");
+        },
+        updateTime() {
+            this.systemLifeMinutes++;
+            if(this.systemLifeMinutes >= 15) {
+                this.publicStageTime++;
+            }
+            if(this.privateStageTime > 0 && this.systemLifeMinutes > 5) {
+                this.privateStageTime--;
+            }
         }
     },
     computed: {
@@ -84,18 +96,25 @@ export default {
             isAuth: state => state.auth.isAuth,
             role: state => state.auth.role,
             address: state => state.auth.address
-        })
+        }),
+        
     },
 
     setup() {
         const {etherBalance, tokenBalance} = getUserData(store.state.auth.address);
         const {publicTokenPrice} = getTokenPrice(store.state.auth.address);
+        const {systemLifeMinutes, publicStageTime, privateStageTime} =
+         getSystemLifeTime(store.state.auth.address);
 
         return {
             etherBalance,
             tokenBalance,
-            publicTokenPrice
+            publicTokenPrice,
+            systemLifeMinutes, publicStageTime, privateStageTime
         }
+    },
+    mounted() {
+        setInterval(this.updateTime, 60000);
     }
 }
 </script>
